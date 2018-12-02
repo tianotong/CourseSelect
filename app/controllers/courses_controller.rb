@@ -57,17 +57,18 @@ class CoursesController < ApplicationController
 
   #-------------------------for students----------------------
 
+  def search
+    @courses = Course.where('course_time like ? and course_type like ? and name like ? and open = ?',
+                            params[:course_time] + '%', params[:course_type] + '%', '%' + params[:name] + '%', true)
+                   .paginate(page: params[:page], per_page: 4)
+    @course = @courses-current_user.courses
+    render 'list'
+  end
+
   def list
     #-------QiaoCode--------
     @courses = Course.where(:open=>true).paginate(page: params[:page], per_page: 4)
     @course = @courses-current_user.courses
-    tmp=[]
-    @course.each do |course|
-      if course.open==true
-        tmp<<course
-      end
-    end
-    @course=tmp
   end
 
   def select
