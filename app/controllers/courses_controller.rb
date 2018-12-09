@@ -1,6 +1,6 @@
 class CoursesController < ApplicationController
 
-  before_action :student_logged_in, only: [:select, :quit, :list]
+  before_action :student_logged_in, only: [:select, :quit, :list, :guide]
   before_action :teacher_logged_in, only: [:new, :create, :edit, :destroy, :update, :open, :close]#add open by qiao
   before_action :logged_in, only: :index
 
@@ -56,6 +56,23 @@ class CoursesController < ApplicationController
   end
 
   #-------------------------for students----------------------
+
+  def guide
+    credits = Course.joins('JOIN grades ON courses.id = grades.course_id')
+                   .select('course_type as type, sum(cast((substr(credit, 4, 5)) as float)) as get')
+                   .where('user_id = ?', session[:user_id]).group('course_type')
+    course_type_list = [['专业研讨课', 20], ['专业核心课', 60],
+                        ['专业普及课', 46], ['一级学科普及课', 40],
+                        ['一级学科核心课', 60], ['公共选修课', 40]]
+    @credits = []
+    course_type_list.each do |course_type|
+      get = 0
+      credits.each do |credit|
+        get = credit.get if credit.type == course_type[0]
+      end
+      @credits.append({:type=>course_type[0], :get=>get, :require=>course_type[1]})
+    end
+  end
 
   def search
     @courses = Course.where('course_time like ? and course_type like ? and name like ? and open = ?',
