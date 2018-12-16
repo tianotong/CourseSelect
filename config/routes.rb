@@ -28,6 +28,7 @@ Rails.application.routes.draw do
       get :search
       get :list
       get :guide
+      get :table
     end
   end
 

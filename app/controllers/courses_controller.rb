@@ -56,6 +56,27 @@ class CoursesController < ApplicationController
   end
 
   #-------------------------for students----------------------
+  def table
+    @table_course = {}
+    @weekday_list = %i[周一 周二 周三 周四 周五 周六 周日]
+    @course_time_list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+    @weekday_list.each do |day|
+      @table_course[day] = {}
+    end
+    current_user.courses.each do |course|
+      week_key = course.course_time[0, 2].to_sym
+      course_order_start = course.course_time[/.*\(([\d]*)-([\d]*)\)/, 1].to_i
+      course_order_end = course.course_time[/.*\(([\d]*)-([\d]*)\)/, 2].to_i
+      span = course_order_end - course_order_start + 1
+      @table_course[week_key][course_order_start] = {
+          start: course_order_start, span: span, name: course.name, course_time: course.course_time,
+          course_week: course.course_week, class_room: course.class_room
+      }
+      (course_order_start + 1..course_order_end).each do |iter|
+        @table_course[week_key][iter] = {start: course_order_start}
+      end
+    end
+  end
 
   def guide
     credits = Course.joins('JOIN grades ON courses.id = grades.course_id')
