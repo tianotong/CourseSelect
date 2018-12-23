@@ -1,3 +1,4 @@
+require 'will_paginate/array'
 class CoursesController < ApplicationController
 
   before_action :student_logged_in, only: [:select, :quit, :list, :guide]
@@ -98,28 +99,57 @@ class CoursesController < ApplicationController
   def search
     @courses = Course.where('course_time like ? and course_type like ? and name like ? and open = ?',
                             params[:course_time] + '%', params[:course_type] + '%', '%' + params[:name] + '%', true)
-                   .paginate(page: params[:page], per_page: 4)
-    @course = @courses-current_user.courses
+    @courses = @courses.paginate(page: params[:page], per_page: 4)
     render 'list'
   end
 
   def list
     #-------QiaoCode--------
-    @courses = Course.where(:open=>true).paginate(page: params[:page], per_page: 4)
-    @course = @courses-current_user.courses
+    @courses = Course.where(:open=>true)
+    @courses = @courses.paginate(page: params[:page], per_page: 4)
   end
 
   def select
     @course=Course.find_by_id(params[:id])
-    current_user.courses<<@course
-    flash={:suceess => "成功选择课程: #{@course.name}"}
+    flash = {}
+    if !@course.limit_num.nil? and @course.student_num == @course.limit_num
+      flash[:danger] = '该课程已到限选人数'
+    else # rule check for duplicate and time conflict
+      week_key = @course.course_time[0, 2]
+      course_order_start = @course.course_time[/.*\(([\d]*)-([\d]*)\)/, 1].to_i
+      course_order_end = @course.course_time[/.*\(([\d]*)-([\d]*)\)/, 2].to_i
+      course_order_range = course_order_start..course_order_end
+      # loop in courses to check rule
+      current_user.courses.each do |course|
+        if course.id == @course.id
+          flash[:danger] = "你过去已经选择了课程：#{course.name}"
+          break
+        end
+        week_key_iter = course.course_time[0, 2]
+        course_order_start_iter = course.course_time[/.*\(([\d]*)-([\d]*)\)/, 1].to_i
+        course_order_end_iter = course.course_time[/.*\(([\d]*)-([\d]*)\)/, 2].to_i
+        if week_key == week_key_iter && (course_order_range.include?(course_order_start_iter) || course_order_range.include?(course_order_end_iter))
+          flash[:danger] = "#{@course.name}和#{course.name}在时间上存在冲突"
+          break
+        end
+      end
+    end
+    # rule check end
+    if flash.empty?
+      current_user.courses << @course
+      @course.student_num = @course.student_num + 1
+      @course.save
+      flash = {success: "成功选择课程: #{@course.name}"}
+    end
     redirect_to courses_path, flash: flash
   end
 
   def quit
     @course=Course.find_by_id(params[:id])
     current_user.courses.delete(@course)
-    flash={:success => "成功退选课程: #{@course.name}"}
+    @course.student_num = @course.student_num - 1
+    @course.save
+    flash={success: "成功退选课程: #{@course.name}"}
     redirect_to courses_path, flash: flash
   end
 

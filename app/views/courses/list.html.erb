@@ -1,3 +1,4 @@
+<% require 'will_paginate/array'%>
 <div class="container-fluid">
   <div class="row">
     <div class="col-sm-2">
@@ -56,7 +57,15 @@
                   <td><%= course.teaching_type %></td>
                   <td><%= course.exam_type %></td>
                   <td><%= course.teacher.name %></td>
-                  <td><%= link_to "加入课程", select_course_path(course), class: 'btn-sm btn-info' %></td>
+                  <td>
+                    <% if !course.limit_num.nil? && course.student_num >= course.limit_num %>
+                      <span class="btn-sm btn-danger">课程已满</span>
+                    <% elsif current_user.courses.include?(course) %>
+                      <span class="btn-sm btn-warning">课程已选</span>
+                    <% else %>
+                      <%= link_to '加入课程', select_course_path(course), class: 'btn-sm btn-info' %>
+                    <% end %>
+                  </td>
 
                 </tr>
             <% end %>
