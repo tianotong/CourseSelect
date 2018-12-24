@@ -98,15 +98,16 @@ class CoursesController < ApplicationController
 
   def search
     @courses = Course.where('course_time like ? and course_type like ? and name like ? and open = ?',
-                            params[:course_time] + '%', params[:course_type] + '%', '%' + params[:name] + '%', true)
-    @courses = @courses.paginate(page: params[:page], per_page: 4)
+                            params[:course_time] + '%', params[:course_type] + '%', '%' + params[:name] + '%', true).order(:id)
+    @courses = @courses.paginate(page: params[:page], per_page: 8)
     render 'list'
   end
 
   def list
     #-------QiaoCode--------
-    @courses = Course.where(:open=>true)
-    @courses = @courses.paginate(page: params[:page], per_page: 4)
+    @courses = Course.where(:open=>true).order(:id)
+    @courses = @courses.paginate(page: params[:page], per_page: 8
+    )
   end
 
   def select
@@ -158,7 +159,7 @@ class CoursesController < ApplicationController
 
   def index
     @course=current_user.teaching_courses.paginate(page: params[:page], per_page: 4) if teacher_logged_in?
-    @course=current_user.courses.paginate(page: params[:page], per_page: 4) if student_logged_in?
+    @course=current_user.courses.paginate(page: params[:page], per_page: 10) if student_logged_in?
   end
 
 
