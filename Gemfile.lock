@@ -47,6 +47,7 @@ GEM
       actionpack (>= 3.1)
       axlsx (>= 2.0.1)
     bcrypt (3.1.11)
+    bcrypt (3.1.11-x64-mingw32)
     binding_of_caller (0.7.2)
       debug_inspector (>= 0.0.1)
     bootstrap-sass (3.3.7)
@@ -115,6 +116,9 @@ GEM
     nokogiri (1.6.8)
       mini_portile2 (~> 2.1.0)
       pkg-config (~> 1.1.7)
+    nokogiri (1.6.8-x64-mingw32)
+      mini_portile2 (~> 2.1.0)
+      pkg-config (~> 1.1.7)
     paper_trail (8.0.1)
       activerecord (>= 4.2, < 5.2)
       request_store (~> 1.1)
@@ -125,6 +129,7 @@ GEM
       mime-types
       mimemagic (~> 0.3.0)
     pg (0.18.4)
+    pg (0.18.4-x64-mingw32)
     pkg-config (1.1.7)
     pry (0.11.2)
       coderay (~> 1.1.0)
@@ -242,6 +247,7 @@ GEM
 
 PLATFORMS
   ruby
+  x64-mingw32
 
 DEPENDENCIES
   axlsx (= 2.1.0.pre)
@@ -276,4 +282,4 @@ DEPENDENCIES
   will_paginate (~> 3.1.6)
 
 BUNDLED WITH
-   1.14.6
+   1.17.1
